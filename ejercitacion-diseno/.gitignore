@@ -2,6 +2,7 @@
 out/
 bin/
 *.class
+registro.log
 
 # Archivos de editor / sistema
 .vscode/

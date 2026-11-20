@@ -1,22 +1,9 @@
-# Unidad 1
-
-| N.º | Ejercicio | Patrón | Estado |
-| 01 | [Configuración inicial de la Aplicación]| Singleton | ✅ |
-| 02 | _pendiente_ | | ⏳ |
-| 03 | _pendiente_ | | ⏳ |
-| 04 | _pendiente_ | | ⏳ |
-| 05 | _pendiente_ | | ⏳ |
-| 06 | _pendiente_ | | ⏳ |
-| 07 | _pendiente_ | | ⏳ |
-| 08 | _pendiente_ | | ⏳ |
-| 09 | _pendiente_ | | ⏳ |
-| 10 | _pendiente_ | | ⏳ |
-
-Ejercicio 1: Configuración Inicial de la Aplicación
+# Unidad 2
+------Ejercicio 1: Configuración Inicial de la Aplicación-----
 Problema
 Una aplicación modular necesita cargar sus propiedades de configuración desde un archivo maestro cuando arranca. Si cada componente creara su propio lector de configuración:
 
-Se leería el archivo varias veces (se desperdician recursos de entrada/salida).
+Se leería el archivo varias veces y esto sigfnifica que se desperdician recursos de entrada/salida.
 Podrían quedar valores distintos en memoria según el componente.
 Solución: patrón Singleton
 
@@ -33,6 +20,176 @@ La clase ConfigurationManager se restringe para que exista una sola instancia en
 
 Lo que muestra en consola:
 ![Captura del ejercicio 1](image.png)
+
+------Ejercicio 2: Gestor de Conexiones a Base de Datos Simple-----
+Problema:
+Abrir y cerrar conexiones a una base de datos todo el tiempo hace que el sistema vaya más lento. Se necesita un gestor central que controle el acceso a los datos y que use siempre la misma conexión.
+
+Solución:
+Se usa el patrón Singleton en la clase GestorConexion: existe un único gestor y una única conexión. Como no hay una base de datos real, la conexión y las operaciones se simulan con mensajes por pantalla.
+
+Qué hace el programa
+-Abre la conexión.
+-Dos módulos (clientes y productos) hacen una consulta y una actualización con la misma conexión.
+-Compara dos referencias con == para comprobar que es el mismo objeto.
+-Intenta abrir la conexión otra vez y comprueba que se usa la misma.
+-Muestra el estado, cierra la conexión y comprueba que un módulo ya no puede consultar.
+
+Explicación de la clase:
++instancia: atributo estático que guarda el único gestor. Empieza en null.
++conectada: indica si la conexión está abierta (true) o cerrada (false).
++Constructor privado: impide crear objetos con new desde otras clases.
++obtenerInstancia(): crea el gestor la primera vez y después devuelve siempre el mismo.
++abrirConexion() y cerrarConexion(): cambian el estado de la conexión.
++ejecutarConsulta() y ejecutarActualizacion(): simulan una operación; si la conexión está cerrada, avisan que no se puede.
++getEstado(): devuelve CONECTADA o CERRADA.
++ModuloClientes y ModuloProductos: piden el gestor con obtenerInstancia() y lo usan, pero nunca lo crean.
+
+Lo que muestra en consola:
+![Captura del ejercicio 2](image-1.png)
+
+
+------Ejercicio 3: Registro de Eventos (Logger) Básico-----
+
+Problema:
+
+Toda aplicación necesita registrar eventos, advertencias y errores en un archivo de texto. Si cada clase abriera su propio flujo de escritura hacia el mismo archivo, podrían producirse bloqueos y datos corruptos.
+
+Solución:
+
+Se usa el patrón Singleton en la clase Logger: existe un único logger y todos los mensajes pasan por él. Cada mensaje se muestra por consola y se guarda en el archivo registro.log, con la fecha y hora agregadas automáticamente.
+
+Qué hace el programa:
+
+- Borra el archivo anterior para empezar limpio y registra un mensaje INFO desde el main.
+- Dos módulos (usuarios y pagos) registran mensajes en el mismo logger: INFO, WARNING (pago muy alto) y ERROR (monto inválido).
+- Compara dos referencias con == para comprobar que es el mismo objeto.
+- Lee el archivo registro.log y lo muestra por pantalla, para comprobar que se guardó todo.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda el único logger. Empieza en null.
++ archivoLog: nombre del archivo donde se guardan los mensajes (registro.log).
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): crea el logger la primera vez y después devuelve siempre el mismo.
++ info(), warning() y error(): son los métodos públicos que usan los demás módulos. Cada uno llama a registrar() con su nivel (INFO, WARNING o ERROR).
++ registrar(): arma la línea con la fecha y hora, el nivel y el mensaje, la muestra por consola y la agrega al final del archivo. Es synchronized para que dos hilos no escriban al mismo tiempo.
++ ModuloUsuarios y ModuloPagos: piden el logger con obtenerInstancia() y lo usan, pero nunca lo crean.
+Lo que muestra en consola:
+![ejercicio-3](ejercitacion-diseno/Unidad_2/Ejercicio-3.png)
+
+
+------Ejercicio 4: Servicio de Caché en Memoria-----
+
+Problema:
+
+Una plataforma web consulta muchas veces los mismos perfiles de usuario. Para no pedirlos al servidor cada vez, se guardan en una caché en memoria. Como la memoria es limitada, toda la aplicación debe compartir una única caché.
+
+Solución:
+
+Se usa el patrón Singleton en la clase CacheServicio: existe una única caché y todos los módulos la comparten. Los datos se guardan en un HashMap privado, con una clave única para cada elemento. La caché se crea recién cuando se pide por primera vez con obtenerInstancia().
+
+Qué hace el programa:
+
+- Muestra que la caché no existe hasta que se la pide por primera vez.
+- Un módulo (perfiles) guarda dos perfiles en la caché y se comprueba que no se puede guardar una clave repetida.
+- Otro módulo (sesiones) recupera los perfiles de la misma caché y avisa cuando un usuario no está.
+- Verifica si una clave existe y actualiza datos (solo si la clave ya existe).
+- Elimina un elemento y muestra la cantidad que queda.
+- Compara dos referencias con == para comprobar que es el mismo objeto y muestra el contenido final.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda la única caché. Empieza en null, por eso se crea solo cuando se la pide (inicialización diferida).
++ datos: HashMap privado donde se guardan los elementos. Como es private y no hay ningún método que lo devuelva, nadie de afuera puede modificarlo directamente.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): crea la caché la primera vez y después devuelve siempre la misma.
++ guardar(): agrega un elemento nuevo. Si la clave ya existe, avisa y no lo pisa.
++ obtener(): devuelve el valor de una clave, o null si no existe.
++ actualizar(): cambia el valor de una clave, pero solo si ya existe.
++ eliminar(): borra un elemento, verificando antes que exista.
++ existe(): indica si una clave está en la caché.
++ claveValida(): validación interna que no deja guardar claves nulas o vacías.
++ synchronized: los métodos están sincronizados para que dos hilos no modifiquen la caché al mismo tiempo.
++ ModuloPerfiles y ModuloSesiones: piden la caché con obtenerInstancia() y la usan, pero nunca la crean.
+
+Lo que muestra en consola:
+![Ejercicio-4](Ejercicio-4.png)
+
+------Ejercicio 5: Administrador de Dispositivos de Hardware Únicos-----
+
+Problema:
+
+En un sistema de automatización industrial, el software se comunica con un único puerto serial conectado a un dispositivo robótico. Si dos componentes envían comandos al mismo tiempo a ese puerto, pueden producirse fallas graves en el hardware.
+
+Solución:
+
+Se usa el patrón Singleton en la clase ControladorHardware: existe un único controlador y todos los módulos del sistema usan ese mismo objeto para hablar con el dispositivo. Como no hay un hardware real, el puerto y los comandos se simulan con mensajes por pantalla. Antes de enviar un comando se valida que el dispositivo esté disponible.
+
+Qué hace el programa:
+
+- Obtiene el controlador y muestra su estado inicial (DESCONECTADO).
+- Intenta enviar un comando con el dispositivo desconectado y comprueba que no se envía.
+- Conecta el dispositivo y el estado pasa a LISTO.
+- El módulo del brazo robótico envía un comando y el dispositivo queda OCUPADO.
+- El módulo de la cinta intenta enviar otro comando mientras el dispositivo está ocupado y no se le permite.
+- Cuando el comando termina, el dispositivo queda libre y la cinta puede enviar el suyo.
+- Compara dos referencias con == para comprobar que es el mismo objeto y muestra cuántos comandos se enviaron.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda el único controlador. Empieza en null.
++ final: la clase es final para que nadie pueda heredar de ella y crear otra versión del controlador.
++ Constructor privado: impide crear objetos con new desde otras clases, por eso no se puede duplicar el controlador.
++ obtenerInstancia(): crea el controlador la primera vez y después devuelve siempre la misma referencia a todos los módulos.
++ conectado y ocupado: indican si el dispositivo está conectado y si está ejecutando un comando.
++ conectar() y desconectar(): cambian el estado de la conexión.
++ estaDisponible(): valida que el dispositivo esté conectado y no esté ocupado.
++ enviarComando(): simula el envío de un comando, pero solo si el dispositivo está disponible. Devuelve true si se envió y false si no.
++ finalizarComando(): simula que el dispositivo terminó y queda libre para el siguiente comando.
++ leerEstado(): devuelve el estado actual: DESCONECTADO, LISTO u OCUPADO.
++ synchronized: los métodos están sincronizados para que dos hilos no manejen el dispositivo al mismo tiempo.
++ ModuloBrazoRobotico y ModuloCinta: piden el controlador con obtenerInstancia(), validan con estaDisponible() y recién ahí envían el comando.
+
+Lo que muestra en consola:
+------Ejercicio 5: Administrador de Dispositivos de Hardware Únicos-----
+
+Problema:
+
+En un sistema de automatización industrial, el software se comunica con un único puerto serial conectado a un dispositivo robótico. Si dos componentes envían comandos al mismo tiempo a ese puerto, pueden producirse fallas graves en el hardware.
+
+Solución:
+
+Se usa el patrón Singleton en la clase ControladorHardware: existe un único controlador y todos los módulos del sistema usan ese mismo objeto para hablar con el dispositivo. Como no hay un hardware real, el puerto y los comandos se simulan con mensajes por pantalla. Antes de enviar un comando se valida que el dispositivo esté disponible.
+
+Qué hace el programa:
+
+- Obtiene el controlador y muestra su estado inicial (DESCONECTADO).
+- Intenta enviar un comando con el dispositivo desconectado y comprueba que no se envía.
+- Conecta el dispositivo y el estado pasa a LISTO.
+- El módulo del brazo robótico envía un comando y el dispositivo queda OCUPADO.
+- El módulo de la cinta intenta enviar otro comando mientras el dispositivo está ocupado y no se le permite.
+- Cuando el comando termina, el dispositivo queda libre y la cinta puede enviar el suyo.
+- Compara dos referencias con == para comprobar que es el mismo objeto y muestra cuántos comandos se enviaron.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda el único controlador. Empieza en null.
++ final: la clase es final para que nadie pueda heredar de ella y crear otra versión del controlador.
++ Constructor privado: impide crear objetos con new desde otras clases, por eso no se puede duplicar el controlador.
++ obtenerInstancia(): crea el controlador la primera vez y después devuelve siempre la misma referencia a todos los módulos.
++ conectado y ocupado: indican si el dispositivo está conectado y si está ejecutando un comando.
++ conectar() y desconectar(): cambian el estado de la conexión.
++ estaDisponible(): valida que el dispositivo esté conectado y no esté ocupado.
++ enviarComando(): simula el envío de un comando, pero solo si el dispositivo está disponible. Devuelve true si se envió y false si no.
++ finalizarComando(): simula que el dispositivo terminó y queda libre para el siguiente comando.
++ leerEstado(): devuelve el estado actual: DESCONECTADO, LISTO u OCUPADO.
++ synchronized: los métodos están sincronizados para que dos hilos no manejen el dispositivo al mismo tiempo.
++ ModuloBrazoRobotico y ModuloCinta: piden el controlador con obtenerInstancia(), validan con estaDisponible() y recién ahí envían el comando.
+
+Lo que muestra en consola:
+![Ejercicio-5](Ejercicio-5.png)
+
 
 ## Bloque B: ejercicios 11 a 20
 
