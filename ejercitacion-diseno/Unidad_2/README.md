@@ -217,6 +217,40 @@ Explicación de la clase:
 
 Lo que muestra en consola: ![Ejercicio-6](Ejercicio-6.png)
 
+------Ejercicio 7: Cola de Impresión Centralizada-----
+
+Problema:
+
+Una oficina comparte una impresora de red. Varias terminales envían documentos al mismo tiempo y el sistema tiene que imprimirlos en el orden en que llegaron, sin perder documentos y sin imprimir ninguno dos veces.
+
+Solución:
+
+Se usa el patrón Singleton en la clase ColaImpresion: existe una única cola de impresión y todas las terminales envían sus documentos a ese mismo objeto. La cola (una Queue de tipo LinkedList) está dentro de la clase y solo se puede modificar con los métodos encolar() e imprimirSiguiente(), que son synchronized para evitar problemas cuando varios hilos trabajan a la vez. Como no hay una impresora real, la impresión se simula con mensajes por pantalla.
+
+Qué hace el programa:
+
+- Encola dos documentos con su nombre de archivo y su autor.
+- Imprime el siguiente documento y comprueba que sale el primero que llegó (FIFO) y que se elimina de la cola.
+- Tres terminales (hilos) envían tres documentos cada una al mismo tiempo, y se comprueba que todos entran a la cola con un número correlativo.
+- Imprime todos los documentos pendientes en orden de llegada.
+- Intenta imprimir con la cola vacía y muestra un aviso.
+- Compara dos referencias con == para comprobar que es el mismo objeto y verifica que la cantidad de documentos encolados es igual a la de impresos (no se perdió ninguno).
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda la única cola de impresión. Empieza en null.
++ cola: Queue privada donde se guardan los documentos. Funciona como una fila: el primero que entra es el primero que sale.
++ Constructor privado: impide crear objetos con new desde otras clases, por eso no puede haber dos colas.
++ obtenerInstancia(): crea la cola de impresión la primera vez y después devuelve siempre la misma.
++ Documento: clase con los datos de cada trabajo (número, nombre del archivo y autor).
++ encolar(): le asigna un número al documento y lo agrega al final de la cola.
++ imprimirSiguiente(): saca el primer documento de la cola con poll(), simula la impresión y lo elimina. Si la cola está vacía, avisa.
++ imprimirTodos(): repite imprimirSiguiente() hasta que la cola queda vacía.
++ getCantidadPendientes(), getTotalEncolados() y getTotalImpresos(): permiten consultar los contadores.
++ synchronized: evita las condiciones de carrera. Solo un hilo a la vez puede entrar a encolar() o imprimirSiguiente(), así no se pierden ni se duplican documentos y los números salen en orden.
++ Terminal: clase que extiende Thread y simula una terminal de usuario que envía varios documentos. Pide la cola con obtenerInstancia() y nunca la crea.
+
+Lo que muestra en consola:![Ejercicio-7](Ejercicio-7.png)
 
 
 ## Bloque B: ejercicios 11 a 20
