@@ -18,8 +18,7 @@ La clase ConfigurationManager se restringe para que exista una sola instancia en
 -Crea 10 hilos y comprueba que todos obtienen la misma instancia.
 -Recuerda que el constructor privado impide crear objetos desde afuera.
 
-Lo que muestra en consola:
-![Captura del ejercicio 1](image.png)
+Lo que muestra en consola:![Ejercicio-1](<Ejercicio-1_muestra en consola.png>)
 
 ------Ejercicio 2: Gestor de Conexiones a Base de Datos Simple-----
 Problema:
@@ -45,9 +44,7 @@ Explicación de la clase:
 +getEstado(): devuelve CONECTADA o CERRADA.
 +ModuloClientes y ModuloProductos: piden el gestor con obtenerInstancia() y lo usan, pero nunca lo crean.
 
-Lo que muestra en consola:
-![Captura del ejercicio 2](image-1.png)
-
+Lo que muestra en consola:![Ejercicio-2](Ejercicio-2.png)
 
 ------Ejercicio 3: Registro de Eventos (Logger) Básico-----
 
@@ -75,9 +72,7 @@ Explicación de la clase:
 + info(), warning() y error(): son los métodos públicos que usan los demás módulos. Cada uno llama a registrar() con su nivel (INFO, WARNING o ERROR).
 + registrar(): arma la línea con la fecha y hora, el nivel y el mensaje, la muestra por consola y la agrega al final del archivo. Es synchronized para que dos hilos no escriban al mismo tiempo.
 + ModuloUsuarios y ModuloPagos: piden el logger con obtenerInstancia() y lo usan, pero nunca lo crean.
-Lo que muestra en consola:
-![ejercicio-3](ejercitacion-diseno/Unidad_2/Ejercicio-3.png)
-
+Lo que muestra en consola: ![Ejercicio-3](Ejercicio-3.png)
 
 ------Ejercicio 4: Servicio de Caché en Memoria-----
 
@@ -151,7 +146,8 @@ Explicación de la clase:
 + synchronized: los métodos están sincronizados para que dos hilos no manejen el dispositivo al mismo tiempo.
 + ModuloBrazoRobotico y ModuloCinta: piden el controlador con obtenerInstancia(), validan con estaDisponible() y recién ahí envían el comando.
 
-Lo que muestra en consola:
+Lo que muestra en consola: ![Ejercicio-4](Ejercicio-4.png)
+
 ------Ejercicio 5: Administrador de Dispositivos de Hardware Únicos-----
 
 Problema:
@@ -187,8 +183,40 @@ Explicación de la clase:
 + synchronized: los métodos están sincronizados para que dos hilos no manejen el dispositivo al mismo tiempo.
 + ModuloBrazoRobotico y ModuloCinta: piden el controlador con obtenerInstancia(), validan con estaDisponible() y recién ahí envían el comando.
 
-Lo que muestra en consola:
-![Ejercicio-5](Ejercicio-5.png)
+Lo que muestra en consola: ![Ejercicio-5](Ejercicio-5.png)
+------Ejercicio 6: Gestor de Temas y Apariencia Visual-----
+
+Problema:
+
+Una aplicación permite cambiar entre el tema claro y el tema oscuro. Todas las vistas de la aplicación tienen que mostrar los mismos colores y actualizarse cuando el usuario cambia la preferencia.
+
+Solución:
+
+Se usa el patrón Singleton en la clase GestorTemas: existe un único gestor que guarda el tema actual y sus colores. Todas las vistas le piden los datos a ese mismo objeto, por eso el estado visual no se divide entre vistas y cuando el usuario cambia el tema, todas muestran los colores nuevos.
+
+Qué hace el programa:
+
+- Muestra el tema inicial (Claro) y los colores que usa cada vista.
+- Desde la vista de Configuración se cambia a tema Oscuro y se comprueba que las tres vistas muestran los colores nuevos.
+- Alterna entre claro y oscuro con alternarTema().
+- Intenta poner un tema que no existe (Azul) y comprueba que no se acepta.
+- Compara dos referencias con == para comprobar que es el mismo objeto y muestra cuántos cambios de tema se hicieron.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda el único gestor. Empieza en null.
++ temaActual, colorFondo y colorTexto: atributos privados que guardan el estado visual. No se pueden modificar desde afuera.
++ Constructor privado: impide crear objetos con new desde otras clases. Al crearse deja el tema en Claro.
++ obtenerInstancia(): crea el gestor la primera vez y después devuelve siempre el mismo.
++ cambiarTema(): cambia el tema, pero solo acepta "Claro" u "Oscuro". Cualquier otro valor se rechaza.
++ alternarTema(): pasa de claro a oscuro, o de oscuro a claro.
++ getTemaActual(), getColorFondo() y getColorTexto(): permiten consultar el estado desde cualquier vista.
++ aplicarColores(): método privado y único lugar donde se modifican los colores, por eso solo se pueden cambiar con métodos controlados de la clase.
++ synchronized: los métodos están sincronizados para que dos hilos no cambien el tema al mismo tiempo.
++ VistaPrincipal, VistaPerfil y VistaConfiguracion: piden el gestor con obtenerInstancia() y consultan los colores, pero nunca lo crean.
+
+Lo que muestra en consola: ![Ejercicio-6](Ejercicio-6.png)
+
 
 
 ## Bloque B: ejercicios 11 a 20
