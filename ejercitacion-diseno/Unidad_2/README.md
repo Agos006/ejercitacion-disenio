@@ -318,6 +318,42 @@ Explicación de la clase:
 
 Lo que muestra en consola: ![Ejercicio-9](Ejercicio-9.png)
 
+------Ejercicio 10: Contenedor de Estado Global y Auditoría de Seguridad-----
+
+Problema:
+
+En una aplicación de alta seguridad, todas las acciones críticas de los operadores (como transferencias o cambios de privilegios) tienen que pasar por un auditor central que guarde una traza de auditoría con el identificador de sesión y la fecha y hora. Esa traza no puede alterarse, tiene que mantener el orden en que ocurrieron los eventos y tiene que funcionar bien cuando muchos hilos registran a la vez.
+
+Solución:
+
+Se usa el patrón Singleton en la clase AuditorSeguridad: existe un único auditor y todos los módulos le envían sus eventos. Cada evento se guarda como un RegistroAuditoria inmutable, con un número correlativo, la sesión, el operador, la acción y la fecha y hora. El Singleton tiene protecciones extra contra la duplicación y usa un cerrojo de lectura/escritura para que sea seguro con varios hilos.
+
+Qué hace el programa:
+
+- Dos módulos (transferencias y privilegios) registran acciones críticas.
+- Muestra la cantidad de registros y la traza completa, en el orden en que ocurrieron.
+- Intenta borrar y agregar registros en la traza desde afuera y comprueba que no se puede.
+- Cuatro operadores (hilos) registran 250 eventos cada uno al mismo tiempo y se comprueba que se guardan los 1003 registros, con numeración continua y orden cronológico.
+- Compara dos referencias con == y prueba un ataque por reflexión para crear un segundo auditor, que queda bloqueado.
+
+Explicación de la clase:
+
++ instancia: atributo estático y final que guarda el único auditor. Se crea al cargar la clase, lo que es seguro para varios hilos.
++ final en la clase: nadie puede heredar de AuditorSeguridad para crear otra versión.
++ Sin Serializable ni Cloneable: la clase no implementa esas interfaces, así que no se puede duplicar copiándola.
++ Constructor privado con protección: si alguien intenta saltarse el constructor privado con reflexión, el constructor detecta que ya existe una instancia y lanza un error.
++ obtenerInstancia(): devuelve siempre el mismo auditor.
++ RegistroAuditoria: clase inmutable. Sus atributos son final y no tiene métodos para cambiarlos, por eso un registro guardado no se puede alterar.
++ registrarEvento(): agrega un registro al final de la traza. El número y la fecha se asignan dentro del bloqueo de escritura, por eso el orden cronológico es estricto.
++ ReentrantReadWriteLock: permite que varios hilos lean a la vez, pero solo uno escriba por vez.
++ getCantidadRegistros(): devuelve la cantidad de registros guardados.
++ obtenerTraza(): devuelve una copia de la traza que no se puede modificar (Collections.unmodifiableList), por eso desde afuera no se puede borrar ni agregar nada.
++ verificarIntegridad(): comprueba que los números sean consecutivos y que ninguna fecha sea anterior a la del registro previo.
++ ModuloTransferencias, ModuloPrivilegios y OperadorHilo: piden el auditor con obtenerInstancia() y le envían eventos, pero nunca lo crean.
+
+Lo que muestra en consola: ![Ejercicio-10](ejercicio-10.png)
+
+
 
 
 
