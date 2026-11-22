@@ -250,7 +250,38 @@ Explicación de la clase:
 + synchronized: evita las condiciones de carrera. Solo un hilo a la vez puede entrar a encolar() o imprimirSiguiente(), así no se pierden ni se duplican documentos y los números salen en orden.
 + Terminal: clase que extiende Thread y simula una terminal de usuario que envía varios documentos. Pide la cola con obtenerInstancia() y nunca la crea.
 
-Lo que muestra en consola:![Ejercicio-7](Ejercicio-7.png)
+Lo que muestra en consola:![Ejercicio-7](Ejercicio-7.png) 
+
+------Ejercicio 8: Refactorización hacia Inyección de Dependencias-----
+
+Problema:
+
+Una aplicación vieja llama directamente a la pasarela de pago con PasarelaPago.obtenerInstancia() desde muchas partes del código. Eso deja a las clases pegadas a la pasarela real y es difícil probarlas por separado, porque no se puede cambiar la pasarela por una falsa.
+
+Solución:
+
+Se mantiene el Singleton, pero se cambia la forma de usarlo. Se crea una interfaz PasarelaPago y la clase PasarelaPagoReal (el Singleton) la implementa. Las clases que necesitan pagar (ServicioPedidos y ServicioSuscripciones) ya no llaman a obtenerInstancia(): reciben la pasarela por el constructor. La única parte que pide la instancia es el main, que entrega ese mismo objeto a los servicios. Esto se llama inyección de dependencias.
+
+Qué hace el programa:
+
+El main crea la pasarela una sola vez con obtenerInstancia().
+Le entrega la pasarela a los servicios por el constructor y los usa para hacer pagos.
+Compara dos referencias con == y muestra que los pagos de ambos servicios pasaron por la misma pasarela (3 pagos en total).
+Muestra un pago rechazado por monto inválido.
+Prueba un servicio con una PasarelaFalsa (que no cobra nada) y comprueba que el servicio funciona sin usar la pasarela real.
+
+Explicación de la clase:
+
+PasarelaPago: interfaz con el método pagar(). Los servicios dependen de esta interfaz y no de una clase concreta.
+PasarelaPagoReal: es el Singleton e implementa la interfaz. Tiene constructor privado, el atributo estático instancia y el método obtenerInstancia(), por eso sigue habiendo una única pasarela.
+pagar(): simula el pago. Rechaza los montos que no son mayores a cero y cuenta los pagos aprobados.
+ServicioPedidos y ServicioSuscripciones: reciben la pasarela por el constructor y la guardan en un atributo. No usan new ni obtenerInstancia() para conseguirla.
+PasarelaFalsa: otra implementación de la interfaz, pensada para pruebas. Guarda el último monto recibido, sin pagar de verdad.
+Ventaja: gracias a la interfaz se puede entregar la pasarela real o la falsa sin cambiar el código de los servicios, y así se pueden probar de forma aislada.
+main: es el único lugar que conoce la clase concreta y arma las piezas (pasarela y servicios).
+
+Lo que muestra en consola: ![Ejercicio-8](ejercicio-8.png)
+
 
 
 ## Bloque B: ejercicios 11 a 20
