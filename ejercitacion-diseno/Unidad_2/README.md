@@ -282,6 +282,43 @@ main: es el único lugar que conoce la clase concreta y arma las piezas (pasarel
 
 Lo que muestra en consola: ![Ejercicio-8](ejercicio-8.png)
 
+------Ejercicio 9: Sistema de Monitoreo de Métricas de Rendimiento-----
+
+Problema:
+
+Una plataforma necesita un colector de métricas (contadores de operaciones y tiempos de respuesta) que reciba datos desde muchos componentes y desde muchos hilos a la vez. El colector tiene que funcionar rápido sin bloquear a todos los hilos, no perder datos y no llenar la memoria.
+
+Solución:
+
+Se usa el patrón Singleton en la clase ColectorMetricas: existe un único colector y todos los módulos le envían sus métricas. Para no bloquear todo el colector, se usan estructuras pensadas para varios hilos (ConcurrentHashMap y AtomicLong) y solo se usa un candado cuando hay que crear una métrica nueva. Para cuidar la memoria, no se guarda cada medición de latencia sino solo un resumen (cantidad, total, mínimo y máximo), y hay un límite de métricas distintas.
+
+Qué hace el programa:
+
+- Dos módulos (login y pedidos) registran contadores y latencias.
+- Exporta un resumen con todas las métricas acumuladas.
+- Cuatro interceptores (hilos) registran 1000 peticiones cada uno al mismo tiempo y se comprueba que el contador da exactamente 4000 (no se pierden datos).
+- Llega al límite de métricas y comprueba que las nuevas se descartan con un aviso, mientras que las que ya existían siguen funcionando.
+- Limpia las métricas y comprueba que después se pueden registrar nuevas.
+- Compara dos referencias con == para comprobar que es el mismo objeto.
+
+Explicación de la clase:
+
++ instancia: atributo estático y final que guarda el único colector. Se crea al cargar la clase, por eso obtenerInstancia() no necesita synchronized y los hilos no se bloquean entre sí al pedirla.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ contadores: ConcurrentHashMap con un AtomicLong por cada contador. AtomicLong suma sin bloquear.
++ latencias: ConcurrentHashMap con un objeto MetricaLatencia por cada métrica de tiempo.
++ MetricaLatencia: guarda cantidad, total, mínimo y máximo. Sus métodos son synchronized, pero bloquean solo esa métrica y no todo el colector.
++ incrementarContador(): suma 1 a un contador, y si no existe lo crea.
++ registrarLatencia(): guarda un tiempo en milisegundos.
++ exportarResumen(): devuelve un texto con todos los contadores y las latencias (cantidad, promedio, mínimo y máximo) acumulados hasta el momento.
++ candado: se usa solo al crear una métrica nueva, para comprobar el límite sin que dos hilos se pasen a la vez.
++ LIMITE_METRICAS: cantidad máxima de métricas distintas (es 6 para poder probarlo). Si se llega al límite, las métricas nuevas se descartan con un aviso y se conservan las que ya estaban.
++ limpiarMetricas(): borra todas las métricas para liberar memoria.
++ ModuloLogin, ModuloPedidos e Interceptor: piden el colector con obtenerInstancia() y le envían métricas, pero nunca lo crean.
+
+Lo que muestra en consola: ![Ejercicio-9](Ejercicio-9.png)
+
+
 
 
 ## Bloque B: ejercicios 11 a 20
