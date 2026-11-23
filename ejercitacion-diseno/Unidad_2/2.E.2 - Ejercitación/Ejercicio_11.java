@@ -1,56 +1,50 @@
-
 public class Ejercicio_11 {
-
-  public static void main(String[] args) {
-
-    ModuloPrestamos moduloPrestamos = new ModuloPrestamos();
-    ModuloConsultas moduloConsultas = new ModuloConsultas();
-
-    System.out.println("---- 1. Configuración inicial vista desde los dos módulos ----");
+public static void main(String[] args) {
+  ModuloPrestamos moduloPrestamos = new ModuloPrestamos();
+  ModuloConsultas moduloConsultas = new ModuloConsultas();
+System.out.println("---- 1. Configuración inicial vista desde los dos módulos ----");
+    moduloPrestamos.mostrarConfiguracion();
+    moduloConsultas.mostrarConfiguracion();
+System.out.println();
+System.out.println("---- 2. Se modifica la configuración ----");
+   ConfiguracionBiblioteca configuracion = ConfiguracionBiblioteca.obtenerInstancia();
+  configuracion.setNombreBiblioteca("Biblioteca del ITU");
+  configuracion.setMaximoLibrosPorSocio(5);
+  configuracion.setPlazoDevolucionDias(20);
+System.out.println("Los dos módulos muestran los valores nuevos:");
     moduloPrestamos.mostrarConfiguracion();
     moduloConsultas.mostrarConfiguracion();
 
-    System.out.println();
-    System.out.println("---- 2. Se modifica la configuración ----");
-    ConfiguracionBiblioteca configuracion = ConfiguracionBiblioteca.obtenerInstancia();
-    configuracion.setNombreBiblioteca("Biblioteca del ITU");
-    configuracion.setMaximoLibrosPorSocio(5);
-    configuracion.setPlazoDevolucionDias(20);
-    System.out.println("Los dos módulos muestran los valores nuevos:");
-    moduloPrestamos.mostrarConfiguracion();
-    moduloConsultas.mostrarConfiguracion();
+System.out.println();
+System.out.println("---- 3. Valores inválidos (se rechazan) ----");
+  configuracion.setNombreBiblioteca("   ");
+  configuracion.setMaximoLibrosPorSocio(0);
+  configuracion.setPlazoDevolucionDias(-5);
+System.out.println("La configuración no cambió:");
+  moduloConsultas.mostrarConfiguracion();
 
-    System.out.println();
-    System.out.println("---- 3. Valores inválidos (se rechazan) ----");
-    configuracion.setNombreBiblioteca("   ");
-    configuracion.setMaximoLibrosPorSocio(0);
-    configuracion.setPlazoDevolucionDias(-5);
-    System.out.println("La configuración no cambió:");
-    moduloConsultas.mostrarConfiguracion();
-
-    System.out.println();
-    System.out.println("---- 4. El módulo de préstamos usa la configuración ----");
-    moduloPrestamos.registrarPrestamo("Maribel", 4);
-    moduloPrestamos.registrarPrestamo("Guadalupe", 5);
-
-    System.out.println();
-    System.out.println("---- 5. Verificar que ambos módulos usan el mismo objeto ----");
+System.out.println();
+System.out.println("---- 4. El módulo de préstamos usa la configuración ----");
+   moduloPrestamos.registrarPrestamo("Maribel", 4);
+   moduloPrestamos.registrarPrestamo("Guadalupe", 5);
+System.out.println();
+System.out.println("---- 5. Verificar que ambos módulos usan el mismo objeto ----");
     ConfiguracionBiblioteca configuracionPrestamos = moduloPrestamos.getConfiguracion();
     ConfiguracionBiblioteca configuracionConsultas = moduloConsultas.getConfiguracion();
-    if (configuracionPrestamos == configuracionConsultas) {
+  if (configuracionPrestamos == configuracionConsultas) {
       System.out.println("Préstamos y Consultas usan el mismo objeto de configuración");
-    } else {
+  } else {
       System.out.println("Préstamos y Consultas usan objetos distintos");
     }
     if (configuracionPrestamos == ConfiguracionBiblioteca.obtenerInstancia()) {
-      System.out.println("Y es el mismo que devuelve obtenerInstancia()");
+System.out.println("Y es el mismo que devuelve obtenerInstancia()");
     }
-    System.out.println("Referencia Préstamos: " + System.identityHashCode(configuracionPrestamos));
-    System.out.println("Referencia Consultas: " + System.identityHashCode(configuracionConsultas));
+System.out.println("Referencia Préstamos: " + System.identityHashCode(configuracionPrestamos));
+System.out.println("Referencia Consultas: " + System.identityHashCode(configuracionConsultas));
 
-    System.out.println();
-    System.out.println("---- 6. Constructor privado ----");
-    System.out.println("No se puede hacer new ConfiguracionBiblioteca() desde otra clase");
+System.out.println();
+System.out.println("---- 6. Constructor privado ----");
+System.out.println("No se puede hacer new ConfiguracionBiblioteca() desde otra clase");
   }
 }
  // Clase Singleton: guarda la configuración general de la biblioteca.
@@ -148,19 +142,15 @@ class ModuloPrestamos {
 }
 // módulo que atiende las consultas
 class ModuloConsultas {
-
-  private ConfiguracionBiblioteca configuracion;
-
+private ConfiguracionBiblioteca configuracion;
   public ModuloConsultas() {
     configuracion = ConfiguracionBiblioteca.obtenerInstancia();
   }
-
-  public ConfiguracionBiblioteca getConfiguracion() {
-    return configuracion;
+public ConfiguracionBiblioteca getConfiguracion() {
+   return configuracion;
   }
-
-  public void mostrarConfiguracion() {
-    System.out.println("[Consultas] " + configuracion.getNombreBiblioteca()
+public void mostrarConfiguracion() {
+System.out.println("[Consultas] " + configuracion.getNombreBiblioteca()
         + " | máximo " + configuracion.getMaximoLibrosPorSocio() + " libros"
         + " | plazo " + configuracion.getPlazoDevolucionDias() + " días");
   }
