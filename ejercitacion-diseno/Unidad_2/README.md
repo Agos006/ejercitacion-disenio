@@ -1,4 +1,4 @@
-# Unidad 2
+# Ejercitacion 2.E.1 : Ejercicio del 1 al 10
 ------Ejercicio 1: Configuración Inicial de la Aplicación-----
 Problema
 Una aplicación modular necesita cargar sus propiedades de configuración desde un archivo maestro cuando arranca. Si cada componente creara su propio lector de configuración:
@@ -353,11 +353,40 @@ Explicación de la clase:
 
 Lo que muestra en consola: ![Ejercicio-10](ejercicio-10.png)
 
+## Ejercitacion 2.E.2: ejercicios 11 a 20
+
+------Ejercicio 11: Configuración General de una Biblioteca-----
+
+Problema:
+
+Los módulos de préstamos y consultas de una biblioteca necesitan conocer el nombre de la institución, la cantidad máxima de libros por socio y el plazo de devolución. Si cada módulo crea su propia configuración, los valores pueden quedar desactualizados: uno se modifica y el otro sigue mostrando los datos viejos.
+
+Solución:
+
+Se usa el patrón Singleton en la clase ConfiguracionBiblioteca: existe un único objeto de configuración y los dos módulos lo comparten. Así, cuando se modifica un valor, los dos módulos ven el cambio al instante. Los atributos son privados y solo se pueden modificar con métodos que validan los datos.
+
+Qué hace el programa:
+
+- Muestra la configuración inicial vista desde los dos módulos (préstamos y consultas).
+- Modifica el nombre, el máximo de libros y el plazo, y comprueba que los dos módulos muestran los valores nuevos.
+- Intenta poner un nombre vacío, un máximo igual a cero y un plazo negativo, y comprueba que se rechazan y la configuración no cambia.
+- Usa la configuración en el módulo de préstamos: aprueba el préstamo de un socio que tiene 4 libros y rechaza el de un socio que ya llegó al máximo de 5.
+- Compara con == los objetos que usan los dos módulos para comprobar que son el mismo.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda la única configuración. Empieza en null.
++ nombreBiblioteca, maximoLibrosPorSocio y plazoDevolucionDias: atributos privados que guardan los datos. Solo se pueden consultar con los get y modificar con los set.
++ Constructor privado: impide crear objetos con new desde otras clases. Deja los valores iniciales (Biblioteca Central, 3 libros y 15 días).
++ obtenerInstancia(): crea la configuración la primera vez y después devuelve siempre el mismo objeto.
++ setNombreBiblioteca(): rechaza los nombres vacíos o formados solo por espacios.
++ setMaximoLibrosPorSocio() y setPlazoDevolucionDias(): rechazan los valores menores o iguales a cero. Cuando rechazan un valor, avisan y mantienen el anterior.
++ ModuloPrestamos y ModuloConsultas: guardan la referencia que devuelve obtenerInstancia() y la usan para mostrar los datos. Tienen un método getConfiguracion() para poder comparar con == que los dos tienen el mismo objeto.
++ registrarPrestamo(): usa el máximo de libros y el plazo de la configuración para aprobar o rechazar un préstamo.
+
+Lo que muestra en consola: ![ejercicio-11](Ejercicio-11.png)
 
 
-
-
-## Bloque B: ejercicios 11 a 20
 
 | N.º | Ejercicio | Patrón | Estado |
 |---|---|---|---|

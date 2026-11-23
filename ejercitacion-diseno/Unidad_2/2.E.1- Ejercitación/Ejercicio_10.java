@@ -207,7 +207,6 @@ final class AuditorSeguridad {
     }
   }
 }
-
 // módulo de transferencias: cada transferencia queda auditada
 class ModuloTransferencias {
   public void transferir(String idSesion, String operador, int monto) {

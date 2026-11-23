@@ -1,3 +1,7 @@
 {
-    "java.debug.settings.onBuildFailureProceed": true
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.project.sourcePaths": [
+        "ejercitacion-diseno/Unidad_2/2.E.1- Ejercitación",
+        "ejercitacion-diseno/Unidad_2/2.E.2 - Ejercitación"
+    ]
 }
