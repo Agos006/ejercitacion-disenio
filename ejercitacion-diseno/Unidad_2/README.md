@@ -384,9 +384,78 @@ Explicación de la clase:
 + ModuloPrestamos y ModuloConsultas: guardan la referencia que devuelve obtenerInstancia() y la usan para mostrar los datos. Tienen un método getConfiguracion() para poder comparar con == que los dos tienen el mismo objeto.
 + registrarPrestamo(): usa el máximo de libros y el plazo de la configuración para aprobar o rechazar un préstamo.
 
-Lo que muestra en consola: ![ejercicio-11](Ejercicio-11.png)
+Lo que muestra en consola: ![Ejercicio-11](ejercicio-11.png)
 
+------Ejercicio 12: Registro Centralizado de Actividades de la Biblioteca-----
 
+Problema:
+
+Los sectores de préstamos, devoluciones y atención a socios de la biblioteca registran sus actividades por separado. Eso hace difícil reconstruir qué operaciones se hicieron y en qué orden. Se necesita un único registro compartido mientras la aplicación está en ejecución.
+
+Solución:
+
+Se usa el patrón Singleton en la clase RegistroActividades: existe un único registro y los tres sectores le envían sus actividades. Cada actividad se guarda con la fecha, la hora, el sector y la descripción, en el orden en que se incorporó. La lista donde se guardan es privada y las consultas devuelven copias que no se pueden modificar, por eso no se puede alterar el historial desde afuera.
+
+Qué hace el programa:
+
+- Los tres sectores (préstamos, devoluciones y atención a socios) registran actividades en el mismo registro.
+- Muestra el historial completo en el orden en que se incorporaron las actividades.
+- Filtra las actividades por sector, incluyendo un sector que no tiene actividades.
+- Muestra la cantidad total de eventos registrados.
+- Intenta borrar y vaciar el historial desde la consulta y comprueba que no se puede. También intenta registrar actividades con el sector o la descripción vacíos y comprueba que se rechazan.
+- Compara con == para comprobar que es el mismo objeto y que los tres sectores usan el mismo registro.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda el único registro. Empieza en null.
++ actividades: lista privada (ArrayList) donde se guardan las actividades en el orden en que llegan.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): crea el registro la primera vez y después devuelve siempre el mismo objeto.
++ Actividad: clase inmutable con la fecha y hora, el sector y la descripción. Sus atributos son final, así que una actividad guardada no se puede modificar.
++ registrar(): agrega una actividad al final del historial con la fecha y la hora actuales. Rechaza el sector o la descripción vacíos.
++ obtenerHistorial(): devuelve una copia del historial que no se puede modificar (Collections.unmodifiableList), por eso la lista original queda protegida.
++ filtrarPorSector(): recorre las actividades y devuelve solo las del sector pedido.
++ getCantidadEventos(): devuelve cuántas actividades hay registradas.
++ SectorPrestamos, SectorDevoluciones y SectorAtencionSocios: guardan la referencia que devuelve obtenerInstancia() y registran sus actividades. Tienen un método getRegistro() para poder comprobar con == que los tres usan el mismo objeto.
++ La clase no es solo static: el registro es un objeto con su propio estado (la lista de actividades), y solo el método obtenerInstancia() y el atributo instancia son estáticos.
+
+Lo que muestra en consola: ![Ejercicio-12](Ejercicio-12.png)
+
+------Ejercicio 13: Catálogo Compartido de Libros-----
+
+Problema:
+
+Una biblioteca tiene dos pantallas: una para el personal y otra para consultar el catálogo. Cada pantalla mantiene su propia lista de libros, por eso los títulos que carga el personal no aparecen enseguida en la pantalla de consulta.
+
+Solución:
+
+Se usa el patrón Singleton en la clase CatalogoLibros: existe un único catálogo y las dos pantallas lo comparten. Cuando el personal agrega un libro o cambia la cantidad de ejemplares, la pantalla de consulta lo ve al instante, sin volver a cargar nada, porque las dos usan el mismo objeto. La lista de libros es privada y solo se modifica con métodos que validan los datos.
+
+Qué hace el programa:
+
+- Muestra el catálogo inicial (vacío) desde la pantalla de consulta.
+- El personal agrega tres libros y la pantalla de consulta los muestra enseguida, sin volver a cargar los datos.
+- Busca libros por título o por autor, incluyendo una búsqueda sin resultados.
+- El personal actualiza la cantidad de ejemplares de un libro y la consulta ve la cantidad nueva.
+- Intenta agregar un código repetido, un título vacío y una cantidad negativa, y también actualizar con una cantidad negativa o un código que no existe. Todo se rechaza y el catálogo no cambia.
+- Intenta borrar y agregar libros desde la lista que devuelve la consulta y comprueba que no se puede.
+- Compara con == para comprobar que las dos pantallas usan el mismo catálogo.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda el único catálogo. Empieza en null.
++ libros: lista privada (ArrayList) donde se guardan los libros. Nadie de afuera puede tocarla directamente.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): crea el catálogo la primera vez y después devuelve siempre el mismo objeto.
++ Libro: clase inmutable con código, título, autor y cantidad. Sus atributos son final; para cambiar la cantidad hay que usar el catálogo.
++ agregarLibro(): agrega un libro y rechaza los códigos repetidos o vacíos, los títulos vacíos y las cantidades negativas.
++ actualizarCantidad(): cambia los ejemplares de un libro según su código. Rechaza las cantidades negativas y los códigos que no existen.
++ buscar(): devuelve los libros cuyo título o autor contienen el texto buscado, sin distinguir mayúsculas de minúsculas.
++ listarLibros(): devuelve una copia de la lista que no se puede modificar (Collections.unmodifiableList), por eso la colección original queda encapsulada.
++ buscarPosicion(): método privado que busca un libro por su código para controlar que no se repita.
++ PantallaPersonal y PantallaConsulta: guardan la referencia que devuelve obtenerInstancia(). El personal agrega y actualiza libros, y la consulta los muestra y los busca. Tienen un método getCatalogo() para poder comprobar con == que usan el mismo objeto.
+
+Lo que muestra en consola: ![Ejercicio-13](Ejercicio-13.png)
 
 | N.º | Ejercicio | Patrón | Estado |
 |---|---|---|---|
