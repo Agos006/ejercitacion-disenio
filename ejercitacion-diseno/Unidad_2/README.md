@@ -526,6 +526,35 @@ Explicación de la clase:
 
 Lo que muestra en consola: ![Ejercicio-15](Ejercicio--15.png)
 
+------Ejercicio 16: Configuración General de un Hospital-----
+Problema:
+Un hospital tiene una aplicación con módulos de recepción y consultorios. Los dos necesitan conocer el nombre del hospital, el horario de atención y la duración de los turnos. Si cada módulo tiene su propia configuración, las pantallas muestran datos diferentes.
+
+Solución:
+Se usa el patrón Singleton en la clase ConfiguracionHospital, con inicialización diferida: el objeto de configuración no se crea al arrancar el programa, sino recién la primera vez que alguien lo pide con obtenerInstancia(). Después, todas las consultas devuelven ese mismo objeto, por eso los dos módulos ven siempre los mismos valores y los cambios se reflejan al instante. Los módulos no guardan la configuración, la piden cada vez que la necesitan.
+
+Qué hace el programa:
+- Crea los módulos de recepción y consultorios y comprueba que todavía no se creó ninguna configuración (0 instancias).
+- Hace la primera consulta desde recepción y se crea la configuración en ese momento (1 instancia).
+- Hace más consultas desde los dos módulos y comprueba que no se crean instancias nuevas (sigue habiendo 1) y que los dos usan el mismo objeto.
+- Modifica el nombre, el horario y la duración de los turnos, y comprueba que los dos módulos muestran los valores nuevos. Recepción calcula cuántos turnos entran por día con la configuración actual.
+- Intenta poner una duración de cero o negativa, un cierre anterior o igual a la apertura y un nombre vacío. Todo se rechaza y la configuración no cambia.
+
+Explicación de la clase:
++ instancia: atributo estático que guarda la única configuración. Empieza en null, por eso no existe hasta que se la pide (inicialización diferida).
++ instanciasCreadas: contador estático que sube cada vez que se ejecuta el constructor. Sirve para comprobar que la configuración se construye una sola vez.
++ Constructor privado: impide crear objetos con new desde otras clases. Deja los valores iniciales (Hospital General, de 08:00 a 18:00 y turnos de 30 minutos) y avisa cuando se crea.
++ obtenerInstancia(): si instancia es null, crea la configuración; si no, devuelve la que ya existe.
++ getInstanciasCreadas(): devuelve cuántas veces se construyó la clase.
++ setNombreHospital(): rechaza los nombres vacíos.
++ setHorario(): cambia la hora de apertura y de cierre juntas. Rechaza el cambio si el cierre no es posterior a la apertura.
++ setDuracionTurnoMinutos(): rechaza las duraciones menores o iguales a cero.
++ Recepcion y Consultorios: piden la configuración con obtenerInstancia() cada vez que la usan. Tienen un método getConfiguracion() para poder comprobar con == que usan el mismo objeto.
++ calcularTurnosPorDia(): en Recepcion, usa el horario y la duración de los turnos para calcular cuántos turnos entran en un día.
+
+Lo que muestra en consola: ![Ejercicio-16](Ejercicio-16.png)
+
+
 | N.º | Ejercicio | Patrón | Estado |
 |---|---|---|---|
 | 11 | _pendiente_ | | ⏳ |
