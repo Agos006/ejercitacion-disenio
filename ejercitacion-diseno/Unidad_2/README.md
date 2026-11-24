@@ -490,6 +490,41 @@ Explicación de la clase:
 
 Lo que muestra en consola: ![Ejercicio-14](ejercicio-14.png)
 
+------Ejercicio 15: Gestor Concurrente de Reservas de una Sala de Lectura-----
+
+Problema:
+
+Una biblioteca tiene una sala de lectura con diez lugares. Varios puestos de atención (simulados con hilos) reciben solicitudes al mismo tiempo. Si cada puesto controla su propia disponibilidad, se aceptan más reservas que lugares.
+
+Solución:
+
+Se usa el patrón Singleton en la clase GestorReservas: existe un único gestor y todos los puestos lo comparten. Los métodos que usan los cupos son synchronized, así solo un hilo a la vez puede comprobar si hay lugar y registrar la reserva. Como esas dos acciones se hacen juntas, sin que otro hilo se meta en el medio, nunca se aceptan más de diez reservas. La creación de la instancia también está protegida con synchronized, para que dos hilos no creen dos gestores.
+
+Qué hace el programa:
+
+- Lanza 35 hilos (puestos de atención) al mismo tiempo, cada uno con un socio distinto. El gestor todavía no existe: lo crean los propios hilos.
+- Cuenta cuántas reservas se aceptaron (siempre 10) y cuántas se rechazaron por falta de lugares (siempre 25), y comprueba que nunca se pasó de 10 reservas ni quedaron lugares negativos.
+- Comprueba que los 35 puestos y el main usaron el mismo gestor.
+- Intenta reservar dos veces para el mismo socio y se rechaza por duplicada.
+- Intenta reservar con la sala llena y se rechaza por falta de lugares.
+- Cancela una reserva y comprueba que el lugar se recupera y se puede usar. Después intenta cancelar una reserva que no existe y comprueba que los lugares disponibles no aumentan.
+- Muestra las reservas activas y los lugares disponibles.
+
+Explicación de la clase:
+
++ CAPACIDAD: constante con la cantidad de lugares de la sala (10).
++ instancia: atributo estático que guarda el único gestor. Empieza en null.
++ reservasActivas: conjunto privado (HashSet) con los socios que tienen una reserva. Un conjunto no admite elementos repetidos, por eso un socio no puede reservar dos veces.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): es synchronized, por eso aunque muchos hilos la pidan a la vez, se crea un solo gestor.
++ reservar(): es synchronized. Rechaza los socios vacíos, las reservas duplicadas y las solicitudes cuando ya hay 10 reservas. Si no, registra la reserva. Devuelve ACEPTADA, DUPLICADA, SIN_LUGARES o SOCIO_INVALIDO.
++ cancelar(): es synchronized. Quita la reserva del socio y devuelve true. Si el socio no tenía reserva, devuelve false y no cambia nada.
++ getLugaresDisponibles(): calcula 10 menos la cantidad de reservas, por eso nunca queda negativo.
++ getCantidadReservas() y getReservasActivas(): permiten consultar las reservas. La lista que devuelve es una copia ordenada que no se puede modificar.
++ PuestoAtencion: clase que extiende Thread y simula un puesto de atención. Pide el gestor con obtenerInstancia() y reserva un lugar para su socio. Guarda el resultado y la referencia al gestor para que el main pueda comprobarlos.
++ Cuáles son los 10 socios que consiguen lugar puede cambiar en cada ejecución, porque depende de qué hilo llega primero. Lo que no cambia es que siempre se aceptan exactamente 10.
+
+Lo que muestra en consola: ![Ejercicio-15](Ejercicio--15.png)
 
 | N.º | Ejercicio | Patrón | Estado |
 |---|---|---|---|

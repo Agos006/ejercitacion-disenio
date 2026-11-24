@@ -15,45 +15,45 @@ Mostrador mostrador2 = new Mostrador("Mostrador 2");
 System.out.println( "  1. El Mostrador 1 presta un ejemplar ");
 mostrador1.prestar("RAY-001", "Ana", LocalDate.of(2026, 11, 24));
 
-    System.out.println();
-    System.out.println("  2. El Mostrador 2 intenta prestar el mismo ejemplar ");
+System.out.println();
+System.out.println("  2. El Mostrador 2 intenta prestar el mismo ejemplar ");
     mostrador2.prestar("RAY-001", "Luis", LocalDate.of(2026, 11, 24));
 
-    System.out.println();
-    System.out.println(" 3. El Mostrador 2 presta otro ejemplar del mismo título ");
+System.out.println();
+System.out.println(" 3. El Mostrador 2 presta otro ejemplar del mismo título ");
     mostrador2.prestar("RAY-002", "Luis", LocalDate.of(2026, 11, 24));
     mostrador2.prestar("FIC-001", "Ana", LocalDate.of(2026, 11, 25));
 
-    System.out.println();
-    System.out.println(" 4. Préstamos activos de cada socio ");
+System.out.println();
+System.out.println(" 4. Préstamos activos de cada socio ");
     mostrador1.mostrarPrestamosDe("Ana");
     mostrador1.mostrarPrestamosDe("Luis");
     mostrador2.mostrarPrestamosDe("Marta");
 
-    System.out.println();
-    System.out.println(" 5. Una devolución habilita de nuevo el ejemplar ");
+System.out.println();
+System.out.println(" 5. Una devolución habilita de nuevo el ejemplar ");
     mostrador2.devolver("RAY-001");
     mostrador1.prestar("RAY-001", "Marta", LocalDate.of(2026, 11, 26));
     mostrador2.mostrarPrestamosDe("Ana");
     mostrador2.mostrarPrestamosDe("Marta");
 
-    System.out.println();
-    System.out.println(" 6. Devoluciones y préstamos que se rechazan ");
+System.out.println();
+System.out.println(" 6. Devoluciones y préstamos que se rechazan ");
     AdministradorPrestamos administrador = AdministradorPrestamos.obtenerInstancia();
-    System.out.println("Préstamos activos antes: " + administrador.getCantidadPrestamosActivos());
+System.out.println("Préstamos activos antes: " + administrador.getCantidadPrestamosActivos());
     mostrador1.devolver("RAY-003");
     mostrador1.prestar("RAY-003", "   ", LocalDate.of(2026, 11, 26));
-    System.out.println("Préstamos activos después: " + administrador.getCantidadPrestamosActivos());
+System.out.println("Préstamos activos después: " + administrador.getCantidadPrestamosActivos());
     mostrador1.devolver("RAY-002");
     mostrador2.devolver("RAY-002");
-    System.out.println("Préstamos activos al final: " + administrador.getCantidadPrestamosActivos());
+System.out.println("Préstamos activos al final: " + administrador.getCantidadPrestamosActivos());
 
-    System.out.println();
-    System.out.println(" 7. Verificar que es una única instancia ");
+System.out.println();
+System.out.println(" 7. Verificar que es una única instancia ");
     if (mostrador1.getAdministrador() == mostrador2.getAdministrador()) {
-      System.out.println("Los dos mostradores usan el mismo administrador");
+System.out.println("Los dos mostradores usan el mismo administrador");
     } else {
-      System.out.println("Los mostradores usan administradores distintos");
+System.out.println("Los mostradores usan administradores distintos");
     }
   }
 }
