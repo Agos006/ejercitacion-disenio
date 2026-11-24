@@ -457,6 +457,40 @@ Explicación de la clase:
 
 Lo que muestra en consola: ![Ejercicio-13](Ejercicio-13.png)
 
+------Ejercicio 14: Administrador Único de Préstamos-----
+
+Problema:
+Dos mostradores de una biblioteca registran préstamos desde la misma aplicación. Si cada mostrador usa su propio administrador, los dos pueden prestar el mismo ejemplar físico a socios distintos. Se necesita un único lugar donde se guarde el estado de los préstamos.
+
+Solución:
+Se usa el patrón Singleton en la clase AdministradorPrestamos: existe un único administrador y los dos mostradores lo comparten. El administrador guarda los préstamos activos en un mapa donde la clave es el identificador del ejemplar (por ejemplo RAY-001). Como cada clave aparece una sola vez, un ejemplar no puede estar prestado a dos socios a la vez. Cada ejemplar físico tiene su propio identificador, aunque sea del mismo título (RAY-001 y RAY-002 son dos ejemplares de Rayuela).
+
+Qué hace el programa:
+- El Mostrador 1 presta el ejemplar RAY-001 a Ana.
+- El Mostrador 2 intenta prestar el mismo ejemplar a Luis y el préstamo se rechaza, porque ya figura prestado a Ana.
+- El Mostrador 2 presta otro ejemplar del mismo título (RAY-002) y otro libro distinto (FIC-001), y se aceptan.
+- Muestra los préstamos activos de cada socio.
+- El Mostrador 2 registra la devolución de un ejemplar que había prestado el Mostrador 1, y el ejemplar queda disponible para prestarlo de nuevo.
+- Intenta devolver un ejemplar sin préstamo activo y prestar a un socio sin nombre. Los dos casos se rechazan y la cantidad de préstamos activos no cambia.
+- Compara con == para comprobar que los dos mostradores usan el mismo administrador.
+
+Explicación de la clase:
+
++ instancia: atributo estático que guarda el único administrador. Empieza en null.
++ prestamosActivos: mapa privado (LinkedHashMap) con los préstamos que están vigentes. La clave es el identificador del ejemplar.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): crea el administrador la primera vez y después devuelve siempre el mismo objeto.
++ Prestamo: clase inmutable con el identificador del ejemplar, el socio y la fecha.
++ registrarPrestamo(): registra un préstamo con el identificador del ejemplar, el socio y la fecha. Rechaza los datos vacíos y los ejemplares que ya están prestados, avisando a quién.
++ registrarDevolucion(): borra el préstamo activo y deja el ejemplar disponible. Si el ejemplar no tiene un préstamo activo, lo rechaza sin modificar nada.
++ consultarPrestamosDe(): devuelve los préstamos activos de un socio, en una lista que no se puede modificar.
++ getCantidadPrestamosActivos(): devuelve cuántos préstamos hay vigentes.
++ Mostrador: representa un mostrador de la biblioteca. Hay dos objetos de esta clase y los dos guardan la referencia que devuelve obtenerInstancia(). Tiene un método getAdministrador() para poder comprobar con == que usan el mismo objeto.
++ Las solicitudes se hacen una después de otra dentro del mismo proceso, por eso no hizo falta sincronizar con hilos.
+
+Lo que muestra en consola: ![Ejercicio-14](ejercicio-14.png)
+
+
 | N.º | Ejercicio | Patrón | Estado |
 |---|---|---|---|
 | 11 | _pendiente_ | | ⏳ |
