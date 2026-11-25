@@ -554,6 +554,144 @@ Explicación de la clase:
 
 Lo que muestra en consola: ![Ejercicio-16](Ejercicio-16.png)
 
+------Ejercicio 17: Generador Central de Números de Atención-----
+
+Problema:
+En la recepción de un hospital hay tres terminales que entregan números de atención para trámites administrativos. Si cada terminal tiene su propio contador, se entregan números repetidos y se producen confusiones en la atención.
+
+Solución:
+Se usa el patrón Singleton en la clase GeneradorNumeros: existe un único generador con un único contador y las tres terminales lo comparten. Cada vez que una terminal pide un número, el generador suma uno al contador y lo entrega, y guarda qué terminal lo pidió. El contador es privado, por eso las terminales no pueden modificarlo: solo pueden pedir el siguiente número. Los números empiezan en 1 y son consecutivos, sin repetirse.
+
+Qué hace el programa:
+- Muestra el estado inicial: el último número emitido es 0.
+- Cada una de las tres terminales pide un número (1, 2 y 3).
+- Consulta el último número emitido varias veces y comprueba que el contador no se incrementa.
+- Las terminales piden números alternadamente hasta llegar a 21 solicitudes.
+- Muestra el historial completo con cada número y la terminal que lo entregó.
+- Verifica que los 21 números son consecutivos y que no se repite ninguno, y cuenta cuántos entregó cada terminal (7 cada una).
+- Compara con == para comprobar que las tres terminales usan el mismo generador.
+
+Explicación de la clase:
++ instancia: atributo estático que guarda el único generador. Empieza en null.
++ ultimoNumero: contador privado que guarda el último número entregado. Empieza en 0.
++ historial: lista privada con todos los números entregados y la terminal que los pidió.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): crea el generador la primera vez y después devuelve siempre el mismo objeto.
++ NumeroEmitido: clase inmutable con el número y la terminal. Sus atributos son final.
++ generarNumero(): suma uno al contador, guarda el número con su terminal en el historial y lo devuelve. Es la única forma de avanzar el contador.
++ getUltimoNumero(): devuelve el último número emitido sin incrementar el contador.
++ obtenerHistorial(): devuelve una copia del historial que no se puede modificar, para que desde afuera no se pueda alterar.
++ Terminal: representa una terminal de la recepción. Guarda la referencia que devuelve obtenerInstancia() y, cuando se le pide un número, llama a generarNumero() con su nombre. Tiene un método getGenerador() para poder comprobar con == que las tres usan el mismo objeto.
++ Las tres terminales se ejecutan en el mismo proceso y piden los números una después de otra, por eso no hizo falta sincronizar con hilos.
+
+Lo que muestra en consola: ![Ejercicio-17](Ejercicio-17.png)
+![Ejercicio-17-parte2](Ejercicio-17.png)
+
+------Ejercicio 18: Registro Compartido de Movimientos de Insumos-----
+
+Problema:
+Los sectores de depósito, consultorios y laboratorio registran por separado los movimientos de insumos. La administración necesita un historial unificado para saber qué entradas y salidas hubo y qué sector fue el responsable de cada una.
+
+Solución:
+Se usa el patrón Singleton en la clase RegistroMovimientos: existe un único registro y los tres sectores le envían sus movimientos. Cada movimiento guarda el código del insumo, el tipo (entrada o salida), la cantidad, el sector y la fecha. El saldo de cada insumo no se guarda aparte: se calcula sumando las entradas y restando las salidas, por eso el saldo inicial se carga con un movimiento de entrada. Los movimientos son inmutables y las consultas devuelven copias que no se pueden modificar, así que lo registrado no se puede editar ni eliminar.
+
+Qué hace el programa:
+- El depósito carga el saldo inicial de tres insumos con movimientos de entrada.
+- Los tres sectores registran más movimientos: salidas de consultorios y laboratorio, y una nueva entrada del depósito.
+- Muestra el historial completo.
+- Filtra los movimientos por insumo y por sector.
+- Calcula el saldo de cada insumo (GAS-01: 100, JER-05: 80 y ALC-02: 25).
+- Intenta registrar una salida mayor al saldo, una salida de un insumo sin entradas, cantidades en cero o negativas y un código vacío. Todo se rechaza y los saldos no cambian.
+- Intenta borrar y reemplazar un movimiento desde el historial y comprueba que no se puede.
+- Compara con == para comprobar que los tres sectores usan el mismo registro.
+
+Explicación de la clase:
++ instancia: atributo estático que guarda el único registro. Empieza en null.
++ movimientos: lista privada donde se guardan los movimientos en el orden en que se registran.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): crea el registro la primera vez y después devuelve siempre el mismo objeto.
++ TipoMovimiento: enum con los dos tipos de movimiento que se admiten, ENTRADA y SALIDA.
++ Movimiento: clase inmutable con el código del insumo, el tipo, la cantidad, el sector y la fecha. Sus atributos son final y no tiene métodos para modificarlos.
++ registrar(): agrega un movimiento. Rechaza los datos vacíos, las cantidades menores o iguales a cero y las salidas que superan el saldo disponible.
++ obtenerHistorial(): devuelve una copia del historial que no se puede modificar (Collections.unmodifiableList), por eso desde afuera no se puede editar ni borrar nada.
++ filtrarPorInsumo() y filtrarPorSector(): recorren los movimientos y devuelven solo los del insumo o el sector pedido.
++ calcularSaldo(): suma las cantidades de las entradas y resta las de las salidas de un insumo. Si el insumo nunca tuvo entradas, el saldo es cero.
++ SectorDeposito, SectorConsultorios y SectorLaboratorio: guardan la referencia que devuelve obtenerInstancia() y registran sus movimientos. Tienen un método getRegistro() para poder comprobar con " == " que los tres usan el mismo objeto.
+
+Lo que muestra en consola: ![Ejercicio-18](Ejercicio-18.png)
+![Ejercicio-18](Ejercicio-18.png)
+
+------Ejercicio 19: Cola Compartida de Impresión Administrativa-----
+Problema:
+Los sectores de recepción, facturación y archivo de un hospital usan una impresora administrativa compartida. Si envían documentos al mismo tiempo y cada uno usa su propio gestor, se pierden o se duplican trabajos.
+
+Solución:
+Se usa el patrón Singleton en la clase GestorImpresion: existe un único gestor y todos los sectores le envían sus documentos. En este ejercicio hay que diferenciar dos tipos de seguridad ante concurrencia. La primera es la creación de la instancia: se resuelve creando el gestor una sola vez, cuando se carga la clase (atributo static final), así dos hilos nunca pueden crear dos gestores. La segunda es la operación sobre la cola: se resuelve con synchronized en los métodos que usan la cola, porque aunque la instancia sea única, si dos hilos modifican la cola a la vez pueden perderse o duplicarse documentos. Cada documento recibe un identificador único y se procesan en el orden en que entraron a la cola. La impresión se simula con mensajes por pantalla.
+
+Qué hace el programa:
+- Lanza 10 hilos al mismo tiempo (los sectores recepción, facturación y archivo), y cada uno envía 4 documentos: 40 documentos en total.
+- Comprueba que los 10 hilos y el main usaron el mismo gestor.
+- Procesa todos los documentos en el orden de la cola, simulando la impresión con mensajes.
+- Verifica que se procesaron los 40 documentos, que no quedó ninguno pendiente y que salieron en orden del 1 al 40, sin perder ni repetir ninguno.
+- Emite un informe con el total de documentos y páginas, y el detalle por sector.
+- Intenta encolar documentos sin nombre, con cero páginas y sin sector, y comprueba que se rechazan. También intenta imprimir con la cola vacía.
+
+Explicación de la clase:
++ instancia: atributo estático y final que guarda el único gestor. Se crea al cargar la clase, por eso la creación es segura aunque muchos hilos la pidan a la vez.
++ cola: Queue privada (LinkedList) donde esperan los documentos. El primero que entra es el primero que sale.
++ procesados: lista privada con los documentos que ya se imprimieron, usada para el informe.
++ contadorIds: contador privado que se usa para darle un identificador único a cada documento.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): devuelve siempre el mismo gestor. No necesita synchronized porque la instancia ya está creada.
++ TrabajoImpresion: clase inmutable con el identificador, el nombre, el sector y la cantidad de páginas del documento.
++ encolar(): es synchronized. Rechaza los datos vacíos o con páginas menores o iguales a cero. Si es válido, le asigna el siguiente identificador y lo agrega al final de la cola. Como el identificador y la posición en la cola se asignan juntos, el orden de los identificadores es el mismo que el de la cola.
++ procesarSiguiente(): es synchronized. Saca el primer documento con poll(), simula la impresión con un mensaje y lo guarda como procesado. Si la cola está vacía, avisa. Como cada documento se saca de la cola una sola vez, se procesa exactamente una vez.
++ procesarTodos(): repite procesarSiguiente() hasta que la cola queda vacía.
++ obtenerProcesados(): devuelve una copia de los trabajos procesados que no se puede modificar.
++ emitirInforme(): muestra el total de documentos y de páginas, y el detalle por sector.
++ HiloSector: clase que extiende Thread y simula un sector que envía documentos. Pide el gestor con obtenerInstancia() y encola sus documentos. Guarda la referencia para que el main pueda comprobar que todos usaron el mismo gestor.
++ Qué sector tiene sus documentos primero en la cola puede cambiar en cada ejecución, porque depende de qué hilo llega primero. Lo que no cambia es que siempre se procesan los 40, en orden y una sola vez cada uno.
+
+Lo que muestra en consola:![Ejercicio-19](Ejercicio-19.png) / ![Ejercicio-19](Ejercicio-19.png)
+
+------Ejercicio 20: Administrador Concurrente de Turnos de Consultorio-----
+
+Problema:
+Un hospital permite pedir turnos desde la recepción y desde un puesto de autoservicio. Si los dos consultan la disponibilidad de un profesional al mismo tiempo, pueden asignar el mismo horario a dos pacientes.
+
+Solución:
+Se usa el patrón Singleton en la clase AdministradorTurnos: existe un único administrador y los dos puestos lo comparten, por eso los dos ven siempre la misma agenda. La instancia se crea al cargar la clase (static final), así que su creación es segura ante concurrencia. Los métodos que consultan y modifican la agenda son synchronized: la comprobación de que el horario está libre y la asignación del turno se hacen juntas, como una sola operación (operación atómica). Así, aunque muchos hilos pidan el mismo horario a la vez, solo uno lo consigue. Todos los pacientes son ficticios y la simulación se hace dentro de un único proceso.
+
+Qué hace el programa:
+- Carga la agenda de dos profesionales con sus horarios disponibles para una fecha.
+- Recepción y autoservicio consultan la agenda inicial y ven lo mismo.
+- Lanza 24 hilos que intentan reservar el mismo turno (el de las 09:00) al mismo tiempo, y comprueba que solo una solicitud lo consigue y las otras 23 se rechazan por horario ocupado. También comprueba que los 24 hilos usaron el mismo administrador.
+- Los dos puestos consultan de nuevo la agenda y ven el turno ocupado.
+- Recepción y autoservicio reservan otros horarios, y el autoservicio no puede reservar un horario que ya tomó recepción.
+- Cancela un turno reservado (el horario queda libre) y después intenta cancelar un turno que no existe y uno que está libre, comprobando que la agenda no cambia.
+- Intenta reservar con un paciente vacío y en un horario que no está en la agenda, y se rechaza.
+- Compara con == para comprobar que recepción y autoservicio usan el mismo administrador.
+
+Explicación de la clase:
+
++ instancia: atributo estático y final que guarda el único administrador. Se crea una sola vez al cargar la clase.
++ agenda: mapa privado (LinkedHashMap) con todos los horarios. La clave identifica un horario de un profesional en una fecha, y el valor es el turno.
++ Turno: clase inmutable con el profesional, la fecha, el horario y el paciente. Si el paciente es null, el horario está libre.
++ Constructor privado: impide crear objetos con new desde otras clases.
++ obtenerInstancia(): devuelve siempre el mismo administrador.
++ cargarAgenda(): agrega los horarios disponibles de un profesional en una fecha, a partir de una hora de inicio y con una duración por turno.
++ reservar(): es synchronized. Rechaza los datos vacíos (DATOS_INVALIDOS), los horarios que no están en la agenda (NO_EXISTE) y los horarios ya ocupados (OCUPADO). Si el horario está libre, lo asigna al paciente (RESERVADO).
++ cancelar(): es synchronized. Si el horario tiene un turno reservado, lo deja libre y devuelve true. Si no existe o ya está libre, devuelve false y no modifica la agenda.
++ obtenerAgenda(): devuelve los horarios de un profesional en una fecha, libres y ocupados, en una lista que no se puede modificar.
++ getCantidadLibres(): cuenta los horarios libres de toda la agenda.
++ PuestoRecepcion y PuestoAutoservicio: los dos componentes. Guardan la referencia que devuelve obtenerInstancia(), reservan y cancelan turnos y muestran la agenda. Tienen un método getAdministrador() para poder comprobar con == que usan el mismo objeto.
++ HiloPaciente: clase que extiende Thread y simula un paciente que intenta reservar un turno. Guarda el resultado y la referencia al administrador para que el main pueda comprobarlos.
++ Qué paciente consigue el turno disputado puede cambiar en cada ejecución, porque depende de qué hilo llega primero. Lo que no cambia es que siempre es uno solo.
+
+Lo que muestra en consola: ![Ejercicio-20-1](ejercicio-20-1.png)
+![ejercicio-20-2](ejercicio-20-2-.png)
+![Ejercicio-20-3](Ejercicio-20-3.png)
+
 
 | N.º | Ejercicio | Patrón | Estado |
 |---|---|---|---|

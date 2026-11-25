@@ -1,8 +1,7 @@
 import java.time.LocalTime;
 
 public class Ejercicio_16 {
- public static void main(String[] args) {
-
+public static void main(String[] args) {
 System.out.println("1_Se crean los módulos, pero todavía nadie pidió la configuración");
     Recepcion recepcion = new Recepcion();
     Consultorios consultorios = new Consultorios();
@@ -95,7 +94,7 @@ public String getNombreHospital() {
     return duracionTurnoMinutos;
   }
  // rechaza los nombres vacíos
-  public void setNombreHospital(String nombreHospital) {
+public void setNombreHospital(String nombreHospital) {
     if (nombreHospital == null || nombreHospital.trim().equals("")) {
 System.out.println("[Configuración] El nombre no puede estar vacío, se mantiene: " + this.nombreHospital);
     } else {
