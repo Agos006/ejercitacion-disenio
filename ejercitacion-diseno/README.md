@@ -1,6 +1,6 @@
 # Ejercitación de Diseño de Software: Patrones de Diseño
 
-- **Alumno/a:** [Tu nombre]
+- **Alumno/a:** Agostina Cortes
 - **Materia:** Diseño de Software
 - **Lenguaje:** Java 21
 - **Entorno:** Visual Studio Code

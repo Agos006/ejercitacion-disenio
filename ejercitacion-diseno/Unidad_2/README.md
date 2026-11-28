@@ -558,10 +558,8 @@ Lo que muestra en consola: ![Ejercicio-16](Ejercicio-16.png)
 
 Problema:
 En la recepción de un hospital hay tres terminales que entregan números de atención para trámites administrativos. Si cada terminal tiene su propio contador, se entregan números repetidos y se producen confusiones en la atención.
-
 Solución:
 Se usa el patrón Singleton en la clase GeneradorNumeros: existe un único generador con un único contador y las tres terminales lo comparten. Cada vez que una terminal pide un número, el generador suma uno al contador y lo entrega, y guarda qué terminal lo pidió. El contador es privado, por eso las terminales no pueden modificarlo: solo pueden pedir el siguiente número. Los números empiezan en 1 y son consecutivos, sin repetirse.
-
 Qué hace el programa:
 - Muestra el estado inicial: el último número emitido es 0.
 - Cada una de las tres terminales pide un número (1, 2 y 3).
@@ -570,7 +568,6 @@ Qué hace el programa:
 - Muestra el historial completo con cada número y la terminal que lo entregó.
 - Verifica que los 21 números son consecutivos y que no se repite ninguno, y cuenta cuántos entregó cada terminal (7 cada una).
 - Compara con == para comprobar que las tres terminales usan el mismo generador.
-
 Explicación de la clase:
 + instancia: atributo estático que guarda el único generador. Empieza en null.
 + ultimoNumero: contador privado que guarda el último número entregado. Empieza en 0.

@@ -1,0 +1,5 @@
+[2026-11-28 02:29:09] ALTA empleado #1: Alta de Agostina Cortes (Analista)
+[2026-11-28 02:29:09] ALTA empleado #2: Alta de Matias Lopez (Programador)
+[2026-11-28 02:29:09] MODIFICACION empleado #2: Salario de Matias Lopez: 1800.00 -> 2100.00
+[2026-11-28 02:29:09] MODIFICACION empleado #1: Cargo de Agostina Cortes: Analista -> Lider de equipo
+[2026-11-28 02:29:09] BAJA empleado #2: Baja de Matias Lopez
